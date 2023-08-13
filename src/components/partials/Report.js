@@ -5,16 +5,20 @@ import { useState } from "react";
 import { BarChart } from "./BarChart";
 import axios from 'axios';
 import { URL_PATH } from '../../ultils/url_path_api';
+//Loading Overlay
+// import LoadingOverlay from "react-loading-overlay";
+// import FadeLoader from "react-spinners/FadeLoader";
 
 Chart.register(CategoryScale);
 
 function ReportJS() {
     //Data
+    // const [isActive, setIsActive] = useState(true); //Overlay Spinner
     const arr_result = []
     axios.get(`${URL_PATH}order/get`).then((data) => {
         let data_receive = data.data
         let timeArray = [];
-        data_receive.forEach((item, index) => {
+        data_receive && data_receive.forEach((item, index) => {
             let time = item.createdAt || ''
             let time_change = time.substring(0, 10)
 
@@ -42,7 +46,7 @@ function ReportJS() {
         }
 
         localStorage.setItem('chart', JSON.stringify(arr_result));
-
+        // setIsActive(false)
     }).catch((err) => console.log(err))
 
 
@@ -89,12 +93,19 @@ function ReportJS() {
                 borderWidth: 2
             }
         ],
-        
+
     })
     return (
-        <div className="App">
-            <BarChart chartData={chartData} />
-        </div>
+       
+            <div className="App">
+                <>
+
+                    <BarChart chartData={chartData} />
+                </>
+
+            </div>
+
+    
     )
 }
 

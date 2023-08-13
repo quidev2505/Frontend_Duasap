@@ -376,7 +376,7 @@ function Home() {
                             <span className="sum_total fw-bold text-success">{totalCart} vnđ</span>
                         </p>
 
-                        <button type="button" class="btn btn-secondary" style={{ width: "100%" }}
+                        <button type="button" class="btn btn-danger" style={{ width: "100%" }}
                             disabled={listCard && listCard.length !== 0 ? false : true} onClick={() => nav('/checkout')}
                         ><FaCartShopping></FaCartShopping>&nbsp; &nbsp; Đặt đơn</button>
                     </div>

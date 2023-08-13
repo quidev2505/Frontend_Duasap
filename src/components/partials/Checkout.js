@@ -12,10 +12,18 @@ import Swal from 'sweetalert2/dist/sweetalert2.js'
 import 'sweetalert2/src/sweetalert2.scss'
 
 
+
+//Loading Overlay
+import LoadingOverlay from "react-loading-overlay";
+import FadeLoader from "react-spinners/FadeLoader";
+
 function Checkout() {
+    const [isActive, setIsActive] = useState(false); //Overlay Spinner
     const [listCard, setListCard] = useState([])
     const [totalCart, setTotalCart] = useState(0);
+    const [methodget, setMethodget] = useState()
 
+    const [sumorder, setSumOrder] = useState(0)
 
     const nav = useNavigate();
 
@@ -26,6 +34,7 @@ function Checkout() {
         handleSubmit,
         formState: { errors }
     } = useForm();
+
 
     useEffect(() => {
         let value_result = JSON.parse(localStorage.getItem('cart'))
@@ -43,13 +52,21 @@ function Checkout() {
                 total_all_cart += Number(item.quantity * item.price) * 1000
             }
         })
+        
+
+        let ship = document.querySelector('.shipping_price').innerText;
+        let ship_value = ship.split(' ')[0];
+
+        console.log(ship_value)
+
+        setSumOrder(total_all_cart + Number(ship_value*1000))
+
 
         setTotalCart(total_all_cart.toLocaleString());
 
-
         setListCard(value_result)
 
-    }, [])
+    }, [methodget])
 
 
     const removeItemCart = (id_input) => {
@@ -62,7 +79,7 @@ function Checkout() {
             }
         })
 
-        if(data_from_cart.length === 0){
+        if (data_from_cart.length === 0) {
             setListCard([])
         }
 
@@ -76,6 +93,15 @@ function Checkout() {
 
         localStorage.setItem('cart', JSON.stringify(data_from_cart));
 
+
+        let ship = document.querySelector('.shipping_price').innerText;
+        let ship_value = ship.split(' ')[0];
+
+        console.log(ship_value)
+
+        setSumOrder(total_all_cart + Number(ship_value * 1000))
+
+
         setTotalCart(total_all_cart.toLocaleString());
         setListCard(data_from_cart)
     }
@@ -84,7 +110,16 @@ function Checkout() {
 
     //Form submit
     const onSubmit = (data) => {
-        if(data){
+        setIsActive(true)
+        if (data) {
+            if (methodget === 'Tự lấy hàng') {
+                data.address = 'Số nhà 367, Hẻm liên tổ 3-4, Đ. Nguyễn Văn Cừ, Phường An Khánh, Ninh Kiều, Cần Thơ, Việt Nam'
+            }
+
+            if (data.note === '') {
+                data.note = "Không có ghi chú thêm !"
+            }
+
             let objectSendtoServer = {
                 hovaten: data.fullName,
                 sdt: data.phonenumber,
@@ -92,27 +127,30 @@ function Checkout() {
                 note: data.note,
                 methodReceive: document.querySelector("#method_get_order").value,
                 methodPayment: document.querySelector("#method_ship").value,
-                total_cart: totalCart,
-                cart: JSON.parse(localStorage.getItem('cart'))
+                total_cart: sumorder.toLocaleString(),
+                cart: JSON.parse(localStorage.getItem('cart')),
+                already_check: 'Chưa xử lý'
             }
 
-            axios.post(`${URL_PATH}order/create`, objectSendtoServer).then((data)=>{
-                    Swal.fire({
-                        title: 'Tạo đơn hàng thành công !',
-                        text: 'Cảm ơn bạn đã mua hàng !',
-                        icon: 'success',
-                        confirmButtonText: 'Xác nhận'
-                    }
+            axios.post(`${URL_PATH}order/create`, objectSendtoServer).then((data) => {
+                setIsActive(false)
+                Swal.fire({
+                    title: 'Tạo đơn hàng thành công !',
+                    text: 'Cảm ơn bạn đã mua hàng !',
+                    icon: 'success',
+                    confirmButtonText: 'Xác nhận'
+                }
                 )
                 localStorage.clear()
                 nav('/')
-            }).catch((e)=>{
+            }).catch((e) => {
                 Swal.fire({
                     title: 'Lỗi đơn hàng!',
                     text: 'Đặt hàng không thành công !',
                     icon: 'fail',
                     confirmButtonText: 'Xác nhận'
                 })
+                console.log(e)
             })
 
         }
@@ -132,6 +170,7 @@ function Checkout() {
                             <FaArrowLeft style={{ border: "1px solid #1e95ff ", borderRadius: "50%", fontSize: "15px" }}></FaArrowLeft> &nbsp;
                             Quay lại trang chủ</div>
                         <div className="content_info_user" style={{ padding: "10px 0px" }}>
+
 
                             <h6>Thông tin người nhận</h6>
                             <div className='row'>
@@ -160,28 +199,37 @@ function Checkout() {
 
 
                             <h6>Hình thức nhận đơn</h6>
-                            <select id="method_get_order">
-                                <option value='Tự lấy hàng' selected>Tự lấy hàng</option>
-                                <option value='Giao hàng tận nơi'>Giao hàng tận nơi</option>
+                            <select id="method_get_order" value={methodget} onChange={(e) => setMethodget(e.target.value)}>
+                                <option value='Giao hàng tận nơi' selected>Giao hàng tận nơi</option>
+                                <option value='Tự lấy hàng'>Tự lấy hàng</option>
                             </select>
 
+                            {methodget === 'Tự lấy hàng' ? (<p style={{ marginTop: "-10px", color: "green", fontStyle: "italic", fontWeight: "bold" }}>Địa chỉ: Số nhà 367, Hẻm liên tổ 3-4, Đ. Nguyễn Văn Cừ, Phường An Khánh, Ninh Kiều, Cần Thơ, Việt Nam</p>) :
+                                (
+                                    <div style={{ display: methodget === 'Tự lấy hàng' ? 'none' : 'block' }}>
+                                        <h6>Địa chỉ nhận hàng <span style={{ color: "red" }}>*</span></h6>
+                                        <div class="mb-3 col">
+                                            <input type="text" class="form-control" id="address" aria-describedby="emailHelp"
+                                                placeholder='Nhập vào địa chỉ giao hàng của bạn'  {...register("address", {
+                                                    required: true,
+                                                    maxLength: 100,
+                                                })} />
+                                            {errors?.address?.type === "required" && <p>Địa chỉ nhận hàng không được để trống !</p>}
+                                        </div>
+                                    </div>
+                                )
+                            }
 
-                            <h6>Địa chỉ nhận hàng <span style={{ color: "red" }}>*</span></h6>
-                            <div class="mb-3 col">
-                                <input type="text" class="form-control" id="address" aria-describedby="emailHelp" placeholder='Nhập vào địa chỉ nhận hàng của bạn' {...register("address", {
-                                    required: true,
-                                    maxLength: 100,
-                                })} />
-                                {errors?.address?.type === "required" && <p>Địa chỉ nhận hàng không được để trống !</p>}
-                            </div>
 
-                            <h6>Ghi chú cho đơn hàng</h6>
+
+
+
+                            <h6>Ghi chú cho đơn hàng <span style={{ color: "red" }}>(không bắt buộc điền)</span></h6>
                             <div class="mb-3 col">
                                 <input type="text" class="form-control" id="note" aria-describedby="emailHelp" placeholder='Nhập vào ghi chú...'  {...register("note", {
-                                    required: true,
-                                    maxLength:100,
+                                    maxLength: 100,
                                 })} />
-                                {errors?.note?.type === "required" && <p>Ghi chú không được để trống !</p>}
+                                {errors?.note?.type === "maxLength" && <p>Chiều dài ghi chú không quá 100 kí tự</p>}
                             </div>
 
                         </div>
@@ -224,6 +272,15 @@ function Checkout() {
                                 <h6>Tổng cộng</h6>
                                 <span className="sum_total fw-bold text-success">{totalCart} vnđ</span>
                             </p>
+                            <p className="d-flex justify-content-between">
+                                <h6>Phí ship: </h6>
+                                <span className="sum_total fw-bold text-success shipping_price">{methodget === 'Tự lấy hàng' ? '0' : '20.000'} vnđ</span>
+                            </p>
+                            <p className="d-flex justify-content-between">
+                                <h6>Thành tiền: </h6>
+                                <span className="sum_total fw-bold text-danger">{sumorder.toLocaleString()} vnđ</span>
+                            </p>
+
                             <div className='d-flex row' style={{ flexDirection: "row", flexWrap: "nowrap", width: "fit-content" }}>
                                 <h6>Phương thức</h6>
                                 <select id="method_ship" style={{ marginLeft: "-85px", width: "fit-content" }}>
@@ -235,10 +292,15 @@ function Checkout() {
                             <p style={{ fontStyle: "italic", fontWeight: "300" }}>
                                 Cửa hàng có thể thu thêm phí vận chuyển sau khi xác nhận đơn hàng, tùy theo khu vực giao hàng
                             </p>
+                            <LoadingOverlay active={isActive} spinner={<FadeLoader
+                                color="red"
+                                loading
+                            />}>
+                                <button type="submit" class="btn btn-danger" style={{ width: "100%" }}
+                                    disabled={listCard && listCard.length !== 0 ? false : true}
+                                ><FaCircleCheck style={{ fontSize: "20px" }}></FaCircleCheck>&nbsp; &nbsp; Đặt đơn</button>
 
-                            <button type="submit" class="btn btn-secondary" style={{ width: "100%" }}
-                                disabled={listCard && listCard.length !==0  ? false : true}
-                            ><FaCircleCheck style={{ fontSize: "20px" }}></FaCircleCheck>&nbsp; &nbsp; Đặt đơn</button>
+                            </LoadingOverlay>
                         </div>
                     </div>
                 </div>

@@ -375,4 +375,60 @@ body{
   .column_checkout{
     margin-top: 10px !important;
   }
+
+  .admin_mobile {
+    * {
+      font-size: 12px;
+    }
+
+    .mobile_item_card {
+      width: fit-content !important;
+    }
+
+    .card_body_mobile {
+      flex-direction: column;
+    }
+
+    .mobile_filter {
+      margin-left: 0px !important;
+      align-items: center !important;
+    }
+
+    .mobile_search {
+      width: fit-content !important;
+
+      h2 {
+        margin-left: 0px !important;
+      }
+    }
+
+    .btn_mobile_admin {
+      margin-left: 5px !important;
+    }
+
+    .chart-container {
+      width: 100%;
+      padding-right: var(--bs-gutter-x, .75rem);
+      padding-left: var(--bs-gutter-x, .75rem);
+      margin-right: auto;
+      margin-left: auto;
+    }
+  }
+
+  .mobile_button_admin {
+    margin-left:10px  !important;
+    flex-direction: column !important;
+    div{
+      margin-top: 10px;
+    }
+
+    .btn_delete_mobile{
+      margin-left: 64px !important;
+    }
+
+    .btn_export_mobile{
+      margin-left: 64px !important;
+    }
+  }
+
 }

@@ -20,7 +20,7 @@ function App() {
         <Route path="/admin-duasap" element={<CheckAdmin />} />
         <Route element={<ProtectRoutes />}>
           <Route path="/admin-page" element={<Adminpage />} />
-          <Route path="/report" element={<Report/>} />
+          <Route path="/report" element={<Report />} />
         </Route>
         <Route path="*" element={<PageNotFound/>} />
       </Routes>
