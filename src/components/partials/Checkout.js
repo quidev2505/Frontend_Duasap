@@ -274,7 +274,7 @@ function Checkout() {
                             </p>
                             <p className="d-flex justify-content-between">
                                 <h6>Phí ship: </h6>
-                                <span className="sum_total fw-bold text-success shipping_price">{methodget === 'Tự lấy hàng' ? '0' : '20.000'} vnđ</span>
+                                <span className="sum_total fw-bold text-success shipping_price">{methodget === 'Tự lấy hàng' ? '0' : '0'} vnđ</span>
                             </p>
                             <p className="d-flex justify-content-between">
                                 <h6>Thành tiền: </h6>
